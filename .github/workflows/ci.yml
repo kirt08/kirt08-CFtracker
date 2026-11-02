@@ -19,6 +19,7 @@ jobs:
         timeout-minutes: 15
         env:
             NEXT_TELEMETRY_DISABLED: 1
+            DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
         steps:
             - uses: actions/checkout@v7
               with:
