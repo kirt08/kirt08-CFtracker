@@ -19,6 +19,7 @@ jobs:
         timeout-minutes: 15
         env:
             NEXT_TELEMETRY_DISABLED: 1
+            DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
         steps:
             - uses: actions/checkout@v7
               with:
@@ -33,3 +34,17 @@ jobs:
             - run: npm run lint
             - run: npm run typecheck
             - run: npm run build
+
+    source-branch:
+        name: PR to main only from dev
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        runs-on: ubuntu-latest
+        steps:
+            - name: check source branch
+              env:
+                HEAD_REF: ${{ github.head_ref }}
+              run: |
+                if [ "$HEAD_REF" != "dev" ]; then
+                  echo "PRs into main must come from dev (got: $HEAD_REF)"
+                  exit 1
+                fi
