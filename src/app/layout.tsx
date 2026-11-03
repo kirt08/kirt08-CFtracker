@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Inter, JetBrains_Mono } from "next/font/google"
 
-import { SiteHeader } from "@/components/site-header"
+import { SiteHeader } from "@/components/header/site-header"
 
 import "./globals.css"
 
