@@ -32,7 +32,7 @@ export function SignInForm() {
             router.push("/")
             router.refresh()
 
-            return { error: null, email }
+            return initialState
         },
         initialState
     )

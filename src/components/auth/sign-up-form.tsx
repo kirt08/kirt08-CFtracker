@@ -38,7 +38,8 @@ export function SignUpForm() {
 
             router.push("/")
             router.refresh()
-            return { error: null, name, email }
+
+            return initialState
         },
         initialState
     )

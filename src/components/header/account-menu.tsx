@@ -1,10 +1,10 @@
 "use client"
 
-import { ChevronDown, LogOut, Settings } from "lucide-react"
+import { ChevronDown, LogOut, Settings, User } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
-import { authClient } from "@/lib/auth-client"
+import { signOut } from "@/lib/auth-client"
 
 import {
     DropdownMenu,
@@ -14,13 +14,13 @@ import {
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
 
-type AccountProps = { name: string; email: string }
+type AccountProps = { name: string; email: string; handle: string | null }
 
-export function AccountMenu({ name, email }: AccountProps) {
+export function AccountMenu({ name, email, handle }: AccountProps) {
     const router = useRouter()
 
     async function handleSignOut() {
-        const { error } = await authClient.signOut()
+        const { error } = await signOut()
         if (error) return
 
         router.push("/")
@@ -50,6 +50,15 @@ export function AccountMenu({ name, email }: AccountProps) {
                         {email}
                     </span>
                 </div>
+                {handle && (
+                    <DropdownMenuItem
+                        render={<Link href={`/u/${handle}`} />}
+                        className="gap-2.5 rounded-lg px-3 py-2.5"
+                    >
+                        <User className="text-muted-foreground" />
+                        My profile
+                    </DropdownMenuItem>
+                )}
                 <DropdownMenuItem
                     render={<Link href="/settings" />}
                     className="gap-2.5 rounded-lg px-3 py-2.5"

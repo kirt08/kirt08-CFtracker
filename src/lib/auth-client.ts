@@ -13,6 +13,12 @@ const ERROR_MESSAGES: Record<string, string> = {
     INVALID_EMAIL: "Enter a valid email",
 }
 
+const OAUTH_ERROR_MESSAGES: Record<string, string> = {
+    account_not_linked:
+        "An account with this email already exists. Sign in with your password, then connect GitHub in Settings.",
+    access_denied: "GitHub sign-in was cancelled.",
+}
+
 type AuthClientError = { code?: string; message?: string; status: number }
 
 function toMessage(error: AuthClientError): string {
@@ -23,6 +29,12 @@ function toMessage(error: AuthClientError): string {
         return ERROR_MESSAGES[error.code]
     }
     return error.message ?? "Something went wrong. Try again."
+}
+
+export function toOAuthMessage(code: string): string {
+    return (
+        OAUTH_ERROR_MESSAGES[code] ?? "Couldn't sign in with GitHub. Try again."
+    )
 }
 
 export async function signUp(input: {
@@ -46,6 +58,16 @@ export async function signIn(input: {
 
 export async function signOut(): Promise<AuthResult> {
     const { error } = await authClient.signOut()
+
+    return { error: error ? toMessage(error) : null }
+}
+
+export async function signInWithGitHub(): Promise<AuthResult> {
+    const { error } = await authClient.signIn.social({
+        provider: "github",
+        callbackURL: "/",
+        errorCallbackURL: "/login",
+    })
 
     return { error: error ? toMessage(error) : null }
 }
