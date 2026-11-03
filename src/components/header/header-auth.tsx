@@ -10,7 +10,11 @@ export async function HeaderAuth() {
 
     if (session) {
         return (
-            <AccountMenu name={session.user.name} email={session.user.email} />
+            <AccountMenu
+                name={session.user.name}
+                email={session.user.email}
+                handle={null}
+            />
         )
     }
 
