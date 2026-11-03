@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Suspense } from "react"
 
 import { HeaderAuth } from "./header-auth"
+import { HeaderSearch } from "./header-search"
 
 export function SiteHeader() {
     return (
@@ -20,9 +21,12 @@ export function SiteHeader() {
                         cf·tracker
                     </span>
                 </Link>
-                <Suspense fallback={<div className="h-10" />}>
-                    <HeaderAuth />
-                </Suspense>
+                <div className="flex flex-wrap items-center gap-3">
+                    <HeaderSearch />
+                    <Suspense fallback={<div className="h-10" />}>
+                        <HeaderAuth />
+                    </Suspense>
+                </div>
             </div>
         </header>
     )

@@ -31,7 +31,7 @@ export function AccountMenu({ name, email, handle }: AccountProps) {
         <DropdownMenu>
             <DropdownMenuTrigger
                 aria-label="Account menu"
-                className="flex h-10 items-center gap-2 rounded-full border border-border pr-2.5 pl-1 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="flex h-10 items-center gap-2 rounded-full border border-border pr-2.5 pl-1 text-sm outline-none focus-visible:border-foreground/25 focus-visible:ring-3 focus-visible:ring-foreground/30"
             >
                 <span className="flex size-8 items-center justify-center rounded-full bg-border text-[13px] font-bold">
                     {name.charAt(0).toUpperCase()}
