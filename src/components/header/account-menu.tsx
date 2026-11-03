@@ -4,7 +4,7 @@ import { ChevronDown, LogOut, Settings } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
-import { authClient } from "@/lib/auth-client"
+import { signOut } from "@/lib/auth-client"
 
 import {
     DropdownMenu,
@@ -20,7 +20,7 @@ export function AccountMenu({ name, email }: AccountProps) {
     const router = useRouter()
 
     async function handleSignOut() {
-        const { error } = await authClient.signOut()
+        const { error } = await signOut()
         if (error) return
 
         router.push("/")
