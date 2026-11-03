@@ -1,6 +1,7 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
-import { buttonVariants } from "@/components/ui/button"
+import { HeaderAuth } from "./header-auth"
 
 export function SiteHeader() {
     return (
@@ -19,27 +20,9 @@ export function SiteHeader() {
                         cf·tracker
                     </span>
                 </Link>
-                <nav className="flex items-center gap-2">
-                    <Link
-                        href="/login"
-                        className={buttonVariants({
-                            variant: "ghost",
-                            size: "lg",
-                        })}
-                    >
-                        Sign in
-                    </Link>
-                    <Link
-                        href="/signup"
-                        className={buttonVariants({
-                            variant: "secondary",
-                            size: "lg",
-                            className: "font-semibold",
-                        })}
-                    >
-                        Sign up
-                    </Link>
-                </nav>
+                <Suspense fallback={<div className="h-10" />}>
+                    <HeaderAuth />
+                </Suspense>
             </div>
         </header>
     )
