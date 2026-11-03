@@ -17,7 +17,7 @@ export const client =
     globalForDb.client ??
     postgres(connectionString, {
         prepare: false,
-        max: process.env.NODE_ENV ? 1 : 10,
+        max: process.env.NODE_ENV === "production" ? 1 : 10,
         idle_timeout: 30,
         connect_timeout: 5,
     })
