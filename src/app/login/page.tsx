@@ -17,7 +17,7 @@ export default function SignInPage() {
             description="Welcome back. Pick up where you left off."
             footer={
                 <>
-                    Don't have an account?{" "}
+                    Don&apos;t have an account?{" "}
                     <Link href="/signup" className="text-link hover:underline">
                         Sign up
                     </Link>
