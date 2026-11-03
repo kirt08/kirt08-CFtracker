@@ -1,4 +1,7 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
+import { signInWithGitHub } from "@/lib/auth-client"
 
 interface GitHubButtonProps {
     label: string
@@ -6,7 +9,12 @@ interface GitHubButtonProps {
 
 export function GitHubButton({ label }: GitHubButtonProps) {
     return (
-        <Button type="button" variant="secondary" size="xl">
+        <Button
+            type="button"
+            variant="secondary"
+            size="xl"
+            onClick={signInWithGitHub}
+        >
             <svg
                 viewBox="0 0 24 24"
                 fill="none"
