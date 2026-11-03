@@ -34,6 +34,7 @@ export function SiteHeader() {
                         className={buttonVariants({
                             variant: "secondary",
                             size: "lg",
+                            className: "font-semibold",
                         })}
                     >
                         Sign up
