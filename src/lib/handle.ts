@@ -5,6 +5,7 @@ import { and, desc, eq, gt } from "drizzle-orm"
 import { db } from "@/db"
 import { cfProfile, handleVerification } from "@/db/schema"
 
+export const HANDLE_PATTERN = /^[\w.-]+$/
 export const VERIFICATION_PROBLEM = {
     contestId: 4,
     index: "A",

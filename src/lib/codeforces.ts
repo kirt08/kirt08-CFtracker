@@ -111,6 +111,13 @@ async function request<T>(
     return body.result
 }
 
+export function avatarSrc(url: string): string {
+    return url.replace(
+        "https://userpic.codeforces.org/",
+        "https://codeforces.com/userpic.codeforces.org/"
+    )
+}
+
 export async function getUser(handle: string): Promise<CfUser> {
     const [user] = await request<CfUser[]>("user.info", { handles: handle })
 

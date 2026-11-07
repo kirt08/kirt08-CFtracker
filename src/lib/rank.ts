@@ -8,3 +8,8 @@ export function rankColor(rating: number | null): string {
     if (rating >= 1200) return "#4ADE80"
     return "#A1A1AA"
 }
+
+export function formatRank(rank: string | null): string {
+    if (!rank) return "Unrated"
+    return rank[0].toUpperCase() + rank.slice(1)
+}
