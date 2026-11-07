@@ -5,9 +5,15 @@ import { Suspense } from "react"
 import { GuestBanner } from "@/components/profile/guest-banner"
 import { ProfileHeader } from "@/components/profile/profile-header"
 import { ProfileSkeleton } from "@/components/profile/profile-skeleton"
+import { ProfileStatCards } from "@/components/profile/profile-stat-cards"
 import { CodeforcesError } from "@/lib/codeforces"
 import { HANDLE_PATTERN } from "@/lib/handle"
-import { getProfile, loadNewProfile, Profile } from "@/lib/profile"
+import {
+    getProfile,
+    getProfileStats,
+    loadNewProfile,
+    Profile,
+} from "@/lib/profile"
 import { getSession } from "@/lib/session"
 
 export async function generateMetadata({
@@ -19,7 +25,10 @@ export async function generateMetadata({
 }
 
 async function ProfileView({ profile }: { profile: Profile }) {
-    const session = await getSession()
+    const [session, stats] = await Promise.all([
+        getSession(),
+        getProfileStats(profile.handle, profile.ownerUserId),
+    ])
 
     return (
         <>
@@ -34,6 +43,7 @@ async function ProfileView({ profile }: { profile: Profile }) {
                 lastSyncedAt={profile.lastSyncedAt}
                 isOwner={session?.user.id === profile.ownerUserId}
             />
+            <ProfileStatCards rating={profile.rating} stats={stats} />
         </>
     )
 }

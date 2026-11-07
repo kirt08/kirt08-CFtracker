@@ -39,6 +39,21 @@ export function ProfileSkeleton({ handle }: ProfileSkeletonProps) {
                     </div>
                 </section>
             )}
+
+            <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
+                {[40, 45, 35, 30].map((width) => (
+                    <div
+                        key={width}
+                        className="flex h-28 flex-col gap-3 rounded-[14px] border border-border bg-card p-5"
+                    >
+                        <span className="h-3 w-2/5 rounded bg-[#1C1C1C]" />
+                        <span
+                            className="h-7 rounded-md bg-[#1C1C1C]"
+                            style={{ width: `${width + 15}%` }}
+                        />
+                    </div>
+                ))}
+            </section>
         </>
     )
 }
