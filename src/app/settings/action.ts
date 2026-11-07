@@ -10,13 +10,13 @@ import { CodeforcesError, getSubmissions, getUser } from "@/lib/codeforces"
 import {
     getActiveVerification,
     getOwnerProfile,
+    HANDLE_PATTERN,
     VERIFICATION_PROBLEM,
 } from "@/lib/handle"
 import { requireSession } from "@/lib/session"
 import { syncHandle } from "@/lib/sync"
 
 const VERIFICATION_WINDOW_MS = 5 * 60 * 1000
-const HANDLE_PATTERN = /^[\w.-]+$/
 
 export type StartVerificationState = { error: string | null; handle: string }
 export type CheckVerificationState = { error: string | null }
