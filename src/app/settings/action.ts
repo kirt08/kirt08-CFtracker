@@ -13,6 +13,7 @@ import {
     VERIFICATION_PROBLEM,
 } from "@/lib/handle"
 import { requireSession } from "@/lib/session"
+import { syncHandle } from "@/lib/sync"
 
 const VERIFICATION_WINDOW_MS = 5 * 60 * 1000
 const HANDLE_PATTERN = /^[\w.-]+$/
@@ -148,9 +149,7 @@ export async function checkVerification(): Promise<CheckVerificationState> {
         return { error: "This handle is already linked to another account" }
     }
 
-    after(() => {
-        console.log("syncHandle: load data for ", verification.handle)
-    })
+    after(() => syncHandle(verification.handle))
 
     return { error: null }
 }
