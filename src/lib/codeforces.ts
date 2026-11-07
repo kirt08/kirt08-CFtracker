@@ -8,8 +8,8 @@ export type CfUser = {
     handle: string
     rating?: number
     maxRating?: number
-    rank?: number
-    maxRank?: number
+    rank?: string
+    maxRank?: string
     titlePhoto: string
 }
 
@@ -96,7 +96,7 @@ async function request<T>(
             signal: AbortSignal.timeout(TIMEOUT_MS),
         })
         body = await response.json()
-    } catch (error) {
+    } catch {
         throw new CodeforcesError(
             `Codeforces is unavailable (${method})`,
             "unavailable"
@@ -112,7 +112,7 @@ async function request<T>(
 }
 
 export async function getUser(handle: string): Promise<CfUser> {
-    const [user] = await request<CfUser[]>("user.info", { handeles: handle })
+    const [user] = await request<CfUser[]>("user.info", { handles: handle })
 
     return user
 }
