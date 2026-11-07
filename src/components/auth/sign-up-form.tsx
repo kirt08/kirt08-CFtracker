@@ -36,7 +36,7 @@ export function SignUpForm() {
                 return { error, name, email }
             }
 
-            router.push("/")
+            router.push("/settings")
             router.refresh()
 
             return initialState
