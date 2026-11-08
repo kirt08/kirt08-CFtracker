@@ -22,7 +22,13 @@ export function SiteHeader() {
                     </span>
                 </Link>
                 <div className="flex flex-wrap items-center gap-3">
-                    <HeaderSearch />
+                    <Suspense
+                        fallback={
+                            <div className="h-10 w-60 rounded-md border border-border bg-card" />
+                        }
+                    >
+                        <HeaderSearch />
+                    </Suspense>
                     <Suspense fallback={<div className="h-10" />}>
                         <HeaderAuth />
                     </Suspense>

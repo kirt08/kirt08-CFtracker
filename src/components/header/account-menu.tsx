@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 import { signOut } from "@/lib/auth-client"
+import { rankColor } from "@/lib/rank"
 
 import {
     DropdownMenu,
@@ -14,17 +15,21 @@ import {
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
 
-type AccountProps = { name: string; email: string; handle: string | null }
+type AccountProps = {
+    name: string
+    email: string
+    handle: string | null
+    rating: number | null
+}
 
-export function AccountMenu({ name, email, handle }: AccountProps) {
+export function AccountMenu({ name, email, handle, rating }: AccountProps) {
     const router = useRouter()
 
     async function handleSignOut() {
         const { error } = await signOut()
         if (error) return
 
-        router.push("/")
-        router.refresh()
+        window.location.href = "/"
     }
 
     return (
@@ -36,7 +41,16 @@ export function AccountMenu({ name, email, handle }: AccountProps) {
                 <span className="flex size-8 items-center justify-center rounded-full bg-border text-[13px] font-bold">
                     {name.charAt(0).toUpperCase()}
                 </span>
-                <span className="font-medium">{name}</span>
+                {handle ? (
+                    <span
+                        className="max-w-44 truncate font-mono font-bold"
+                        style={{ color: rankColor(rating) }}
+                    >
+                        {handle}
+                    </span>
+                ) : (
+                    <span className="font-medium">{name}</span>
+                )}
                 <ChevronDown className="size-3.5 text-muted-foreground" />
             </DropdownMenuTrigger>
             <DropdownMenuContent

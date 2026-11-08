@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { getOwnerProfile } from "@/lib/handle"
 import { getSession } from "@/lib/session"
 
 import { buttonVariants } from "../ui/button"
@@ -9,11 +10,14 @@ export async function HeaderAuth() {
     const session = await getSession()
 
     if (session) {
+        const profile = await getOwnerProfile(session.user.id)
+
         return (
             <AccountMenu
                 name={session.user.name}
                 email={session.user.email}
-                handle={null}
+                handle={profile?.handle ?? null}
+                rating={profile?.rating ?? null}
             />
         )
     }
