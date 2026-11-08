@@ -2,6 +2,10 @@ import { LoaderCircle } from "lucide-react"
 
 import { LoadingSteps } from "./loading-steps"
 
+const CHART_BARS = [
+    70, 85, 60, 50, 45, 38, 30, 25, 20, 16, 12, 10, 8, 6, 5, 4, 3,
+]
+
 type ProfileSkeletonProps = { handle?: string }
 
 export function ProfileSkeleton({ handle }: ProfileSkeletonProps) {
@@ -44,7 +48,7 @@ export function ProfileSkeleton({ handle }: ProfileSkeletonProps) {
                 {[40, 45, 35, 30].map((width) => (
                     <div
                         key={width}
-                        className="flex h-28 flex-col gap-3 rounded-[14px] border border-border bg-card p-5"
+                        className="flex h-34 flex-col gap-3 rounded-[14px] border border-border bg-card p-5"
                     >
                         <span className="h-3 w-2/5 rounded bg-[#1C1C1C]" />
                         <span
@@ -54,6 +58,39 @@ export function ProfileSkeleton({ handle }: ProfileSkeletonProps) {
                     </div>
                 ))}
             </section>
+
+            <div className="flex flex-wrap gap-6">
+                <section className="flex min-w-0 flex-[999_1_560px] flex-col gap-4 rounded-[14px] border border-border bg-card p-6">
+                    <div className="flex h-6.5 items-center justify-between">
+                        <span className="h-4 w-40 rounded bg-[#1C1C1C]" />
+                        <span className="h-3 w-24 rounded bg-[#1C1C1C]" />
+                    </div>
+                    <div className="flex h-55 items-end gap-1.5">
+                        {CHART_BARS.map((height) => (
+                            <span
+                                key={height}
+                                className="flex-1 rounded-t bg-[#1C1C1C]"
+                                style={{ height: `${height}%` }}
+                            />
+                        ))}
+                    </div>
+                </section>
+
+                <section className="flex min-w-0 flex-[1_1_360px] flex-col gap-5 rounded-[14px] border border-border bg-card p-6">
+                    <div className="flex h-6.5 items-center">
+                        <span className="h-4 w-20 rounded bg-[#1C1C1C]" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <span className="h-4 w-20 rounded bg-[#1C1C1C]" />
+                        <div className="h-15 rounded-[10px] border border-border bg-background" />
+                        <div className="h-15 rounded-[10px] border border-border bg-background" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <span className="h-4 w-28 rounded bg-[#1C1C1C]" />
+                        <div className="h-15 rounded-[10px] border border-border" />
+                    </div>
+                </section>
+            </div>
         </>
     )
 }

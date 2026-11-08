@@ -7,12 +7,14 @@ import { GuestBanner } from "@/components/profile/guest-banner"
 import { ProfileHeader } from "@/components/profile/profile-header"
 import { ProfileSkeleton } from "@/components/profile/profile-skeleton"
 import { ProfileStatCards } from "@/components/profile/profile-stat-cards"
+import { RoundsCard } from "@/components/profile/rounds-card"
 import { CodeforcesError } from "@/lib/codeforces"
 import { HANDLE_PATTERN } from "@/lib/handle"
 import {
     getProfile,
     getProfileStats,
     getSolvedByDifficulty,
+    getUpcomingContests,
     loadNewProfile,
     Profile,
 } from "@/lib/profile"
@@ -27,10 +29,11 @@ export async function generateMetadata({
 }
 
 async function ProfileView({ profile }: { profile: Profile }) {
-    const [session, stats, difficulty] = await Promise.all([
+    const [session, stats, difficulty, upcoming_contests] = await Promise.all([
         getSession(),
         getProfileStats(profile.handle, profile.ownerUserId),
         getSolvedByDifficulty(profile.handle),
+        getUpcomingContests(),
     ])
 
     return (
@@ -49,6 +52,10 @@ async function ProfileView({ profile }: { profile: Profile }) {
             <ProfileStatCards rating={profile.rating} stats={stats} />
             <div className="flex flex-wrap gap-6">
                 <DifficultyChart buckets={difficulty} />
+                <RoundsCard
+                    upcoming={upcoming_contests}
+                    lastRound={stats.lastRound}
+                />
             </div>
         </>
     )
