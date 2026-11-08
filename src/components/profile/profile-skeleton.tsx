@@ -91,6 +91,23 @@ export function ProfileSkeleton({ handle }: ProfileSkeletonProps) {
                     </div>
                 </section>
             </div>
+
+            <section className="flex flex-col gap-4.5 rounded-[14px] border border-border bg-card p-6">
+                <div className="flex h-6.5 items-center justify-between">
+                    <span className="h-4 w-36 rounded bg-[#1C1C1C]" />
+                    <span className="h-3 w-48 rounded bg-[#1C1C1C]" />
+                </div>
+                <div className="grid gap-x-10 gap-y-3.5 lg:grid-cols-2">
+                    {Array.from({ length: 12 }, (_, index) => (
+                        <div key={index} className="flex flex-col gap-1.5">
+                            <div className="flex h-5 items-center">
+                                <span className="h-3 w-1/3 rounded bg-[#1C1C1C]" />
+                            </div>
+                            <span className="h-2 rounded bg-[#1C1C1C]" />
+                        </div>
+                    ))}
+                </div>
+            </section>
         </>
     )
 }

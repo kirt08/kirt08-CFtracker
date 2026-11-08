@@ -14,6 +14,8 @@ const DIFFICULTY_STEP = 100
 
 const UPCOMING_LIMIT = 2
 
+const TOPIC_LIMIT = 12
+
 export type Profile = typeof cfProfile.$inferSelect
 
 export async function getProfile(handle: string) {
@@ -186,3 +188,32 @@ export async function getUpcomingContests() {
 export type UpcomingContest = Awaited<
     ReturnType<typeof getUpcomingContests>
 >[number]
+
+export type TopicStat = { name: string; solved: number; rate: number }
+
+export async function getTopicStats(handle: string) {
+    return db.execute<TopicStat>(sql`
+        with per_problem as (
+            select
+                contest_id,
+                problem_index,
+                count(*)::int as attempts,
+                count(*) filter (where is_accepted)::int as accepted
+            from submission
+            where handle = ${handle}
+            group by contest_id, problem_index
+        )
+        select
+            t.tag as "name",
+            count(*) filter (where pp.accepted > 0)::int as "solved",
+            round(100.0 * sum(pp.accepted) / sum(pp.attempts))::int as "rate"
+        from per_problem pp
+        join problem p
+            on p.contest_id = pp.contest_id and p.index = pp.problem_index
+        cross join lateral unnest(p.tags) as t(tag)
+        where t.tag not like '*%'
+        group by t.tag
+        order by "solved" desc, t.tag
+        limit ${TOPIC_LIMIT}        
+    `)
+}

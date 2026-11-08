@@ -8,12 +8,14 @@ import { ProfileHeader } from "@/components/profile/profile-header"
 import { ProfileSkeleton } from "@/components/profile/profile-skeleton"
 import { ProfileStatCards } from "@/components/profile/profile-stat-cards"
 import { RoundsCard } from "@/components/profile/rounds-card"
+import { TopicsCard } from "@/components/profile/topic-card"
 import { CodeforcesError } from "@/lib/codeforces"
 import { HANDLE_PATTERN } from "@/lib/handle"
 import {
     getProfile,
     getProfileStats,
     getSolvedByDifficulty,
+    getTopicStats,
     getUpcomingContests,
     loadNewProfile,
     Profile,
@@ -29,12 +31,14 @@ export async function generateMetadata({
 }
 
 async function ProfileView({ profile }: { profile: Profile }) {
-    const [session, stats, difficulty, upcoming_contests] = await Promise.all([
-        getSession(),
-        getProfileStats(profile.handle, profile.ownerUserId),
-        getSolvedByDifficulty(profile.handle),
-        getUpcomingContests(),
-    ])
+    const [session, stats, difficulty, upcoming_contests, topics] =
+        await Promise.all([
+            getSession(),
+            getProfileStats(profile.handle, profile.ownerUserId),
+            getSolvedByDifficulty(profile.handle),
+            getUpcomingContests(),
+            getTopicStats(profile.handle),
+        ])
 
     return (
         <>
@@ -57,6 +61,7 @@ async function ProfileView({ profile }: { profile: Profile }) {
                     lastRound={stats.lastRound}
                 />
             </div>
+            <TopicsCard topics={topics} />
         </>
     )
 }
