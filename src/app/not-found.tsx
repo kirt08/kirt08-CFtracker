@@ -1,10 +1,34 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { Suspense } from "react"
 
 import { buttonVariants } from "@/components/ui/button"
+import { getOwnerProfile } from "@/lib/handle"
+import { getSession } from "@/lib/session"
 
 export const metadata: Metadata = {
     title: "Page not found · CF tracker",
+}
+
+async function MyProfileLink() {
+    const session = await getSession()
+    if (!session) return null
+
+    const profile = await getOwnerProfile(session.user.id)
+    if (!profile) return null
+
+    return (
+        <Link
+            href={`/u/${profile.handle}`}
+            className={buttonVariants({
+                variant: "outline",
+                size: "xl",
+                className: "h-11 font-medium",
+            })}
+        >
+            My profile
+        </Link>
+    )
 }
 
 export default function NotFound() {
@@ -18,15 +42,20 @@ export default function NotFound() {
                 <p className="text-[15px] text-muted-foreground">
                     The page you’re looking for doesn’t exist or was moved.
                 </p>
-                <Link
-                    href="/"
-                    className={buttonVariants({
-                        size: "xl",
-                        className: "mt-3 h-11",
-                    })}
-                >
-                    Back to home
-                </Link>
+                <div className="mt-3 flex flex-wrap justify-center gap-2.5">
+                    <Link
+                        href="/"
+                        className={buttonVariants({
+                            size: "xl",
+                            className: "h-11",
+                        })}
+                    >
+                        Back to home
+                    </Link>
+                    <Suspense fallback={null}>
+                        <MyProfileLink />
+                    </Suspense>
+                </div>
             </div>
         </main>
     )

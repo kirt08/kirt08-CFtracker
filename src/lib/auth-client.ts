@@ -66,6 +66,7 @@ export async function signInWithGitHub(): Promise<AuthResult> {
     const { error } = await authClient.signIn.social({
         provider: "github",
         callbackURL: "/",
+        newUserCallbackURL: "/settings",
         errorCallbackURL: "/login",
     })
 
