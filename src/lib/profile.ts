@@ -8,6 +8,10 @@ import { cfProfile, contest, contestParticipation } from "@/db/schema"
 import { getUser } from "./codeforces"
 import { syncHandle } from "./sync"
 
+const MIN_DIFFICULTY = 800
+const MAX_DIFFICULTY = 2400
+const DIFFICULTY_STEP = 100
+
 export type Profile = typeof cfProfile.$inferSelect
 
 export async function getProfile(handle: string) {
@@ -101,3 +105,36 @@ export async function getProfileStats(
 }
 
 export type ProfileStats = Awaited<ReturnType<typeof getProfileStats>>
+
+export async function getSolvedByDifficulty(handle: string) {
+    const rows = await db.execute<{ rating: number; solved: number }>(sql`
+        select 
+            least(p.rating, ${MAX_DIFFICULTY})::int as "rating",
+            count(*)::int as "solved"
+        from (
+            select distinct contest_id, problem_index
+            from submission
+            where handle = ${handle} and is_accepted
+        ) as s
+        join problem p
+            on p.contest_id = s.contest_id and p.index = s.problem_index
+        where p.rating is not null
+        group by 1
+    `)
+    const solvedByRating = new Map(rows.map((row) => [row.rating, row.solved]))
+
+    const buckets = []
+    for (
+        let rating = MIN_DIFFICULTY;
+        rating <= MAX_DIFFICULTY;
+        rating += DIFFICULTY_STEP
+    ) {
+        buckets.push({ rating, solved: solvedByRating.get(rating) ?? 0 })
+    }
+
+    return buckets
+}
+
+export type DifficultyBucket = Awaited<
+    ReturnType<typeof getSolvedByDifficulty>
+>[number]
