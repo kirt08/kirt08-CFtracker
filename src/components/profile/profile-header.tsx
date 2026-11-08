@@ -77,6 +77,7 @@ export function ProfileHeader({
             <div className="flex flex-wrap gap-2.5">
                 <a
                     href={`https://codeforces.com/profile/${handle}`}
+                    target="_blank"
                     className={buttonVariants({
                         variant: "outline",
                         size: "xl",
