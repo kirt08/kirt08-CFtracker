@@ -108,6 +108,23 @@ export function ProfileSkeleton({ handle }: ProfileSkeletonProps) {
                     ))}
                 </div>
             </section>
+            <section className="flex flex-col gap-4 rounded-[14px] border border-border bg-card p-6">
+                <div className="flex flex-col gap-2">
+                    <span className="h-4 w-20 rounded bg-[#1C1C1C]" />
+                    <span className="h-3 w-72 max-w-full rounded bg-[#1C1C1C]" />
+                </div>
+                <div className="flex flex-col border-t border-border">
+                    {Array.from({ length: 5 }, (_, index) => (
+                        <div
+                            key={index}
+                            className="flex flex-col gap-2.5 border-b border-border py-4"
+                        >
+                            <span className="h-4 w-1/2 rounded bg-[#1C1C1C]" />
+                            <span className="h-3 w-1/3 rounded bg-[#1C1C1C]" />
+                        </div>
+                    ))}
+                </div>
+            </section>
         </>
     )
 }

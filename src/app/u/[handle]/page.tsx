@@ -9,6 +9,7 @@ import { ProfileSkeleton } from "@/components/profile/profile-skeleton"
 import { ProfileStatCards } from "@/components/profile/profile-stat-cards"
 import { RoundsCard } from "@/components/profile/rounds-card"
 import { TopicsCard } from "@/components/profile/topic-card"
+import { UpsolveCard } from "@/components/profile/upsolve-card"
 import { CodeforcesError } from "@/lib/codeforces"
 import { HANDLE_PATTERN } from "@/lib/handle"
 import {
@@ -21,6 +22,7 @@ import {
     Profile,
 } from "@/lib/profile"
 import { getSession } from "@/lib/session"
+import { getUpsolvePage } from "@/lib/upsolve"
 
 export async function generateMetadata({
     params,
@@ -31,13 +33,22 @@ export async function generateMetadata({
 }
 
 async function ProfileView({ profile }: { profile: Profile }) {
-    const [session, stats, difficulty, upcoming_contests, topics] =
+    const session = await getSession()
+    const isOwner = profile.ownerUserId === session?.user.id
+
+    const [stats, difficulty, upcoming_contests, topics, upsolvePage] =
         await Promise.all([
-            getSession(),
             getProfileStats(profile.handle, profile.ownerUserId),
             getSolvedByDifficulty(profile.handle),
             getUpcomingContests(),
             getTopicStats(profile.handle),
+            getUpsolvePage({
+                handle: profile.handle,
+                ownerUserId: profile.ownerUserId,
+                showNotes: isOwner,
+                filter: "all",
+                cursor: null,
+            }),
         ])
 
     return (
@@ -51,7 +62,7 @@ async function ProfileView({ profile }: { profile: Profile }) {
                 maxRank={profile.maxRank}
                 avatarUrl={profile.avatarUrl}
                 lastSyncedAt={profile.lastSyncedAt}
-                isOwner={session?.user.id === profile.ownerUserId}
+                isOwner={isOwner}
             />
             <ProfileStatCards rating={profile.rating} stats={stats} />
             <div className="flex flex-wrap gap-6">
@@ -62,6 +73,12 @@ async function ProfileView({ profile }: { profile: Profile }) {
                 />
             </div>
             <TopicsCard topics={topics} />
+            <UpsolveCard
+                key={profile.lastSyncedAt?.getTime()}
+                handle={profile.handle}
+                isOwner={isOwner}
+                initialPage={upsolvePage}
+            />
         </>
     )
 }
