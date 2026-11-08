@@ -13,10 +13,10 @@ export function ProfileSkeleton({ handle }: ProfileSkeletonProps) {
         <>
             <section className="flex flex-wrap items-center gap-5">
                 <div className="size-22 rounded-2xl bg-[#1C1C1C]" />
-                <div className="flex flex-col gap-2.5">
+                <div className="flex min-w-0 flex-col gap-2.5">
                     <span className="h-3.5 w-22.5 rounded bg-[#1C1C1C]" />
                     {handle ? (
-                        <h1 className="font-mono text-[34px] leading-[normal] font-bold text-zinc-300">
+                        <h1 className="font-mono text-2xl leading-tight font-bold break-all text-zinc-300 sm:text-[34px] sm:leading-[normal]">
                             {handle}
                         </h1>
                     ) : (
