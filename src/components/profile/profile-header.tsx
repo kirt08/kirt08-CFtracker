@@ -34,7 +34,7 @@ export function ProfileHeader({
 
     return (
         <section className="flex flex-wrap items-center justify-between gap-6">
-            <div className="flex items-center gap-5">
+            <div className="flex min-w-0 items-center gap-5">
                 <Avatar className="size-22 rounded-2xl after:rounded-2xl">
                     {avatarUrl && (
                         <AvatarImage
@@ -47,12 +47,12 @@ export function ProfileHeader({
                         {handle[0].toUpperCase()}
                     </AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col gap-1.5">
+                <div className="flex min-w-0 flex-col gap-1.5">
                     <span className="text-sm font-semibold" style={{ color }}>
                         {formatRank(rank)}
                     </span>
                     <h1
-                        className="font-mono text-[34px] leading-[normal] font-bold"
+                        className="font-mono text-2xl leading-tight font-bold break-all sm:text-[34px] sm:leading-[normal]"
                         style={{ color }}
                     >
                         {handle}
@@ -77,6 +77,7 @@ export function ProfileHeader({
             <div className="flex flex-wrap gap-2.5">
                 <a
                     href={`https://codeforces.com/profile/${handle}`}
+                    target="_blank"
                     className={buttonVariants({
                         variant: "outline",
                         size: "xl",

@@ -12,6 +12,7 @@ import {
 } from "@/db/schema"
 
 import {
+    CfContest,
     CfSubmission,
     CodeforcesError,
     getContests,
@@ -225,15 +226,7 @@ async function ensureContests(ids: number[]): Promise<Set<number>> {
 
     const rows = (await getContests())
         .filter((item) => missing.has(item.id))
-        .map((item) => ({
-            id: item.id,
-            name: item.name,
-            startTime:
-                item.startTimeSeconds !== undefined
-                    ? new Date(item.startTimeSeconds * 1000)
-                    : null,
-            durationSeconds: item.durationSeconds,
-        }))
+        .map(toContestRow)
 
     for (const batch of chunk(rows)) {
         await db.insert(contest).values(batch).onConflictDoNothing()
@@ -241,6 +234,37 @@ async function ensureContests(ids: number[]): Promise<Set<number>> {
     for (const row of rows) known.add(row.id)
 
     return known
+}
+
+export async function syncUpcomingContests(): Promise<void> {
+    const rows = (await getContests())
+        .filter((item) => item.phase === "BEFORE")
+        .map(toContestRow)
+    if (rows.length === 0) return
+
+    await db
+        .insert(contest)
+        .values(rows)
+        .onConflictDoUpdate({
+            target: contest.id,
+            set: {
+                name: sql`excluded.name`,
+                startTime: sql`excluded.start_time`,
+                durationSeconds: sql`excluded.duration_seconds`,
+            },
+        })
+}
+
+function toContestRow(item: CfContest) {
+    return {
+        id: item.id,
+        name: item.name,
+        startTime:
+            item.startTimeSeconds !== undefined
+                ? new Date(item.startTimeSeconds * 1000)
+                : null,
+        durationSeconds: item.durationSeconds,
+    }
 }
 
 function chunk<T>(items: T[]): T[][] {

@@ -10,7 +10,8 @@ type ProfileStatCardsProps = {
 }
 
 export function ProfileStatCards({ rating, stats }: ProfileStatCardsProps) {
-    const { ratingChange, lastContestAt } = stats
+    const ratingChange = stats.lastRound?.ratingChange ?? null
+    const lastContestAt = stats.lastRound?.startTime ?? null
 
     return (
         <section className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">

@@ -2,15 +2,21 @@ import type { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 import { Suspense } from "react"
 
+import { DifficultyChart } from "@/components/profile/difficulty-graph"
 import { GuestBanner } from "@/components/profile/guest-banner"
 import { ProfileHeader } from "@/components/profile/profile-header"
 import { ProfileSkeleton } from "@/components/profile/profile-skeleton"
 import { ProfileStatCards } from "@/components/profile/profile-stat-cards"
+import { RoundsCard } from "@/components/profile/rounds-card"
+import { TopicsCard } from "@/components/profile/topic-card"
 import { CodeforcesError } from "@/lib/codeforces"
 import { HANDLE_PATTERN } from "@/lib/handle"
 import {
     getProfile,
     getProfileStats,
+    getSolvedByDifficulty,
+    getTopicStats,
+    getUpcomingContests,
     loadNewProfile,
     Profile,
 } from "@/lib/profile"
@@ -25,10 +31,14 @@ export async function generateMetadata({
 }
 
 async function ProfileView({ profile }: { profile: Profile }) {
-    const [session, stats] = await Promise.all([
-        getSession(),
-        getProfileStats(profile.handle, profile.ownerUserId),
-    ])
+    const [session, stats, difficulty, upcoming_contests, topics] =
+        await Promise.all([
+            getSession(),
+            getProfileStats(profile.handle, profile.ownerUserId),
+            getSolvedByDifficulty(profile.handle),
+            getUpcomingContests(),
+            getTopicStats(profile.handle),
+        ])
 
     return (
         <>
@@ -44,6 +54,14 @@ async function ProfileView({ profile }: { profile: Profile }) {
                 isOwner={session?.user.id === profile.ownerUserId}
             />
             <ProfileStatCards rating={profile.rating} stats={stats} />
+            <div className="flex flex-wrap gap-6">
+                <DifficultyChart buckets={difficulty} />
+                <RoundsCard
+                    upcoming={upcoming_contests}
+                    lastRound={stats.lastRound}
+                />
+            </div>
+            <TopicsCard topics={topics} />
         </>
     )
 }
