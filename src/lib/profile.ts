@@ -16,6 +16,8 @@ const UPCOMING_LIMIT = 2
 
 const TOPIC_LIMIT = 12
 
+const STALE_GUEST_PROFILE_MS = 6 * 60 * 60 * 1000 // 6 hours, after this time we will sync viewed profile (BackgroundTask)
+
 export type Profile = typeof cfProfile.$inferSelect
 
 export async function getProfile(handle: string) {
@@ -26,6 +28,14 @@ export async function getProfile(handle: string) {
         .limit(1)
 
     return profile
+}
+
+export function isStaleGuestProfile(profile: Profile): boolean {
+    return (
+        profile.ownerUserId === null &&
+        profile.lastSyncedAt !== null &&
+        Date.now() - profile.lastSyncedAt.getTime() > STALE_GUEST_PROFILE_MS
+    )
 }
 
 export async function loadNewProfile(handle: string) {
