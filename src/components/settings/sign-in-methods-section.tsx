@@ -1,8 +1,21 @@
-import { Button } from "@/components/ui/button"
+import { Suspense } from "react"
 
-type SignInMethodsSectionProps = { email: string }
+import { OAuthError } from "@/components/auth/oauth-error"
 
-export function SignInMethodsSection({ email }: SignInMethodsSectionProps) {
+import { ConnectGitHubButton } from "./connect-github-button"
+import { PasswordDialog } from "./password-dialog"
+
+type SignInMethodsSectionProps = {
+    email: string
+    hasPassword: boolean
+    hasGitHub: boolean
+}
+
+export function SignInMethodsSection({
+    email,
+    hasPassword,
+    hasGitHub,
+}: SignInMethodsSectionProps) {
     return (
         <section
             id="signin"
@@ -18,31 +31,20 @@ export function SignInMethodsSection({ email }: SignInMethodsSectionProps) {
                         {email}
                     </span>
                 </div>
-                <Button
-                    type="button"
-                    variant="outline"
-                    size="md"
-                    className="font-normal"
-                >
-                    Change password
-                </Button>
+                <PasswordDialog hasPassword={hasPassword} email={email} />
             </div>
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border py-3.5">
                 <div className="flex flex-col gap-0.5">
                     <span className="text-[15px] font-medium">GitHub</span>
                     <span className="text-[13px] text-muted-foreground">
-                        Not connected
+                        {hasGitHub ? "Connected" : "Not connected"}
                     </span>
                 </div>
-                <Button
-                    type="button"
-                    variant="secondary"
-                    size="md"
-                    className="font-semibold"
-                >
-                    Connect GitHub
-                </Button>
+                {!hasGitHub && <ConnectGitHubButton />}
             </div>
+            <Suspense fallback={null}>
+                <OAuthError />
+            </Suspense>
         </section>
     )
 }

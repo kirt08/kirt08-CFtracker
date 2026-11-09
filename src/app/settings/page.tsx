@@ -6,6 +6,7 @@ import { DeleteAccountSection } from "@/components/settings/delete-account-secti
 import { HandleSection } from "@/components/settings/handle/handle-section"
 import { SettingsNav } from "@/components/settings/settings-nav"
 import { SignInMethodsSection } from "@/components/settings/sign-in-methods-section"
+import { getSignInMethods } from "@/lib/account"
 import { getHandleData } from "@/lib/handle"
 import { requireSession } from "@/lib/session"
 
@@ -15,7 +16,10 @@ export const metadata: Metadata = {
 
 async function SettingsContent() {
     const { user } = await requireSession()
-    const handleData = await getHandleData(user.id)
+    const [handleData, signInMethods] = await Promise.all([
+        getHandleData(user.id),
+        getSignInMethods(user.id),
+    ])
 
     return (
         <>
@@ -23,8 +27,12 @@ async function SettingsContent() {
             <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-5">
                 <HandleSection data={handleData} />
                 <AccountSection name={user.name} email={user.email} />
-                <SignInMethodsSection email={user.email} />
-                <DeleteAccountSection />
+                <SignInMethodsSection
+                    email={user.email}
+                    hasPassword={signInMethods.hasPassword}
+                    hasGitHub={signInMethods.hasGitHub}
+                />
+                <DeleteAccountSection hasPassword={signInMethods.hasPassword} />
             </div>
         </>
     )
