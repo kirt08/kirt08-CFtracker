@@ -22,6 +22,8 @@ import {
     isStaleGuestProfile,
     loadNewProfile,
     Profile,
+    recordProfileView,
+    shouldRecordView,
 } from "@/lib/profile"
 import { getSession } from "@/lib/session"
 import { syncHandle } from "@/lib/sync"
@@ -36,6 +38,9 @@ export async function generateMetadata({
 }
 
 async function ProfileView({ profile }: { profile: Profile }) {
+    if (shouldRecordView(profile)) {
+        after(() => recordProfileView(profile.handle))
+    }
     const session = await getSession()
     const isOwner = profile.ownerUserId === session?.user.id
 
