@@ -1,0 +1,10 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "schedules": {
+        "sync-codeforces": {
+            "schedule": "0 */3 * * *",
+            "path": "/api/cron/sync",
+            "requestMethod": "GET"
+        }
+    }
+}

@@ -1,6 +1,17 @@
 import "server-only"
 
-import { and, eq, inArray, lt, max, ne, or, sql } from "drizzle-orm"
+import {
+    and,
+    eq,
+    inArray,
+    isNotNull,
+    isNull,
+    lt,
+    max,
+    ne,
+    or,
+    sql,
+} from "drizzle-orm"
 
 import { db } from "@/db"
 import {
@@ -16,6 +27,7 @@ import {
     CfSubmission,
     CodeforcesError,
     getContests,
+    getProblemset,
     getRatingHistory,
     getSubmissions,
     getUser,
@@ -27,18 +39,26 @@ const STUCK_AFTER_MS = 5 * 60 * 1000 // 5 mins in ms; when something forgot to c
 const RETRY_DELAY_MS = 5000
 const FIRST_GYM_CONTEST_ID = 100000
 const IN_CONTEST_TYPES = new Set(["CONTESTANT", "OUT_OF_COMPETITION"])
+const STALE_AFTER_MS = 2 * 60 * 60 * 1000
+const MAX_UNAVAILABLE_IN_A_ROW = 3 // codeforces looks down, stop the cron run
 
-export async function syncHandle(handle: string): Promise<void> {
-    if (!(await lockProfile(handle))) return
+export type SyncResult = "synced" | "skipped" | "failed" | "unavailable"
+
+export async function syncHandle(handle: string): Promise<SyncResult> {
+    if (!(await lockProfile(handle))) return "skipped"
 
     try {
         await withRetry(() => loadHandle(handle))
+        return "synced"
     } catch (error) {
         console.error(`syncHandle(${handle}) failed`, error)
         await db
             .update(cfProfile)
             .set({ syncStatus: "failed", syncStartedAt: null })
             .where(eq(cfProfile.handle, handle))
+        return error instanceof CodeforcesError && error.kind === "unavailable"
+            ? "unavailable"
+            : "failed"
     }
 }
 
@@ -236,11 +256,11 @@ async function ensureContests(ids: number[]): Promise<Set<number>> {
     return known
 }
 
-export async function syncUpcomingContests(): Promise<void> {
+export async function syncUpcomingContests(): Promise<number> {
     const rows = (await getContests())
         .filter((item) => item.phase === "BEFORE")
         .map(toContestRow)
-    if (rows.length === 0) return
+    if (rows.length === 0) return 0
 
     await db
         .insert(contest)
@@ -253,6 +273,8 @@ export async function syncUpcomingContests(): Promise<void> {
                 durationSeconds: sql`excluded.duration_seconds`,
             },
         })
+
+    return rows.length
 }
 
 function toContestRow(item: CfContest) {
@@ -274,4 +296,91 @@ function chunk<T>(items: T[]): T[][] {
     }
 
     return batches
+}
+
+export async function refreshProblemRating(): Promise<number> {
+    const unrated = await db
+        .select({
+            contestId: problem.contestId,
+            index: problem.index,
+        })
+        .from(problem)
+        .where(isNull(problem.rating))
+    if (unrated.length === 0) return 0
+
+    const cfProblems = new Map(
+        (await getProblemset()).map((item) => [
+            `${item.contestId}/${item.index}`,
+            item,
+        ])
+    )
+
+    const rows = unrated.flatMap(({ contestId, index }) => {
+        const item = cfProblems.get(`${contestId}/${index}`)
+        if (item?.rating === undefined) return []
+
+        return [
+            {
+                contestId,
+                index,
+                name: item.name,
+                rating: item.rating,
+                tags: item.tags,
+            },
+        ]
+    })
+
+    for (const batch of chunk(rows)) {
+        await db
+            .insert(problem)
+            .values(batch)
+            .onConflictDoUpdate({
+                target: [problem.contestId, problem.index],
+                set: { rating: sql`excluded.rating` },
+            })
+    }
+
+    return rows.length
+}
+
+export async function syncOwnedHandles(deadline: number) {
+    const staleBefore = new Date(Date.now() - STALE_AFTER_MS)
+
+    const handles = await db
+        .select({ handle: cfProfile.handle })
+        .from(cfProfile)
+        .where(
+            and(
+                isNotNull(cfProfile.ownerUserId),
+                or(
+                    isNull(cfProfile.lastSyncedAt),
+                    lt(cfProfile.lastSyncedAt, staleBefore)
+                )
+            )
+        )
+        .orderBy(sql`${cfProfile.lastSyncedAt} asc nulls first`)
+
+    const counts: Record<SyncResult, number> = {
+        synced: 0,
+        skipped: 0,
+        failed: 0,
+        unavailable: 0,
+    }
+    let processed = 0
+    let unavailableInARow = 0
+
+    for (const { handle } of handles) {
+        if (
+            Date.now() >= deadline ||
+            unavailableInARow >= MAX_UNAVAILABLE_IN_A_ROW
+        )
+            break
+
+        const result = await syncHandle(handle)
+        counts[result]++
+        processed++
+        unavailableInARow = result === "unavailable" ? unavailableInARow + 1 : 0
+    }
+
+    return { ...counts, remaining: handles.length - processed }
 }
