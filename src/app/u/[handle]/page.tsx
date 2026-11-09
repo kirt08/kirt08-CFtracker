@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
+import { after } from "next/server"
 import { Suspense } from "react"
 
 import { DifficultyChart } from "@/components/profile/difficulty-graph"
@@ -18,10 +19,12 @@ import {
     getSolvedByDifficulty,
     getTopicStats,
     getUpcomingContests,
+    isStaleGuestProfile,
     loadNewProfile,
     Profile,
 } from "@/lib/profile"
 import { getSession } from "@/lib/session"
+import { syncHandle } from "@/lib/sync"
 import { getUpsolvePage } from "@/lib/upsolve"
 
 export async function generateMetadata({
@@ -118,6 +121,10 @@ async function ProfileContent({
         )
     }
     if (profile.handle !== handle) redirect(`/u/${profile.handle}`)
+
+    if (isStaleGuestProfile(profile)) {
+        after(() => syncHandle(profile.handle))
+    }
 
     return <ProfileView profile={profile} />
 }
