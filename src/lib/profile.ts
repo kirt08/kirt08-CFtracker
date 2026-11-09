@@ -1,6 +1,6 @@
 import "server-only"
 
-import { asc, desc, eq, gt, sql } from "drizzle-orm"
+import { and, asc, desc, eq, gt, isNotNull, sql } from "drizzle-orm"
 
 import { db } from "@/db"
 import { cfProfile, contest, contestParticipation } from "@/db/schema"
@@ -16,6 +16,12 @@ const UPCOMING_LIMIT = 2
 
 const TOPIC_LIMIT = 12
 
+const STALE_GUEST_PROFILE_MS = 6 * 60 * 60 * 1000 // 6 hours, after this time we will sync viewed profile (BackgroundTask)
+
+const VIEW_WRITE_INTERVAL_MS = 60 * 1000
+
+export const RECENTLY_VIEWED_LIMIT = 5
+
 export type Profile = typeof cfProfile.$inferSelect
 
 export async function getProfile(handle: string) {
@@ -26,6 +32,14 @@ export async function getProfile(handle: string) {
         .limit(1)
 
     return profile
+}
+
+export function isStaleGuestProfile(profile: Profile): boolean {
+    return (
+        profile.ownerUserId === null &&
+        profile.lastSyncedAt !== null &&
+        Date.now() - profile.lastSyncedAt.getTime() > STALE_GUEST_PROFILE_MS
+    )
 }
 
 export async function loadNewProfile(handle: string) {
@@ -39,6 +53,34 @@ export async function loadNewProfile(handle: string) {
     await syncHandle(cfUser.handle)
 
     return getProfile(cfUser.handle)
+}
+
+export function shouldRecordView(profile: Profile): boolean {
+    return (
+        profile.lastViewedAt === null ||
+        Date.now() - profile.lastViewedAt.getTime() > VIEW_WRITE_INTERVAL_MS
+    )
+}
+
+export async function recordProfileView(handle: string): Promise<void> {
+    await db
+        .update(cfProfile)
+        .set({ lastViewedAt: new Date() })
+        .where(eq(cfProfile.handle, handle))
+}
+
+export async function getRecentlyViewed() {
+    return db
+        .select({ handle: cfProfile.handle, rating: cfProfile.rating })
+        .from(cfProfile)
+        .where(
+            and(
+                isNotNull(cfProfile.lastSyncedAt),
+                isNotNull(cfProfile.lastViewedAt)
+            )
+        )
+        .orderBy(desc(cfProfile.lastViewedAt))
+        .limit(RECENTLY_VIEWED_LIMIT)
 }
 
 export async function getProfileStats(

@@ -1,11 +1,14 @@
 "use server"
 
+import { APIError } from "better-auth"
 import { and, eq, isNull } from "drizzle-orm"
 import { refresh } from "next/cache"
+import { headers } from "next/headers"
 import { after } from "next/server"
 
 import { db } from "@/db"
 import { cfProfile, handleVerification } from "@/db/app-schema"
+import { auth } from "@/lib/auth"
 import { CodeforcesError, getSubmissions, getUser } from "@/lib/codeforces"
 import {
     getActiveVerification,
@@ -173,4 +176,31 @@ export async function unlinkHandle() {
         .where(eq(cfProfile.ownerUserId, user.id))
 
     refresh()
+}
+
+export async function setAccountPassword(
+    newPassword: string
+): Promise<{ error: string | null }> {
+    await requireSession()
+
+    try {
+        await auth.api.setPassword({
+            body: { newPassword },
+            headers: await headers(),
+        })
+    } catch (error: unknown) {
+        const tooShort =
+            error instanceof APIError &&
+            error.body?.code === "PASSWORD_TOO_SHORT"
+
+        return {
+            error: tooShort
+                ? "Password must be at least 8 characters"
+                : "Couldn't set the password. Try again.",
+        }
+    }
+
+    refresh()
+
+    return { error: null }
 }

@@ -100,8 +100,8 @@ export function HandleLinked({
                     </div>
                 </div>
                 <span className="text-[13px] text-muted-foreground">
-                    Your data refreshes automatically once a day. You can also
-                    sync manually from your profile.
+                    Your data refreshes automatically every few hours. You can
+                    also sync manually from your profile.
                 </span>
             </section>
         </>
