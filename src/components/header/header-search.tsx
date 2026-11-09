@@ -1,25 +1,16 @@
 "use client"
 
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
+
+import { useHandleSearch } from "@/lib/use-handle-search"
 
 import { Input } from "../ui/input"
 
 export function HeaderSearch() {
-    const router = useRouter()
+    const handleSubmit = useHandleSearch()
     const pathname = usePathname()
 
     if (pathname === "/") return null
-
-    function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
-        event.preventDefault()
-
-        const form = event.currentTarget
-        const handle = String(new FormData(form).get("handle") ?? "").trim()
-        if (!handle) return
-
-        form.reset()
-        router.push(`/u/${encodeURIComponent(handle)}`)
-    }
 
     return (
         <form role="search" onSubmit={handleSubmit}>
