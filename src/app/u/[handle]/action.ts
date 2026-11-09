@@ -94,7 +94,7 @@ export async function saveUpsolveNote(
     const userId = await requireUpsolveOwner(contestId, index)
 
     const note = note_text.trim()
-    if (!note && note.length > MAX_NOTE_LENGTH) {
+    if (!note || note.length > MAX_NOTE_LENGTH) {
         throw new Error("Note must be 1-2000 characters long")
     }
 
