@@ -100,23 +100,6 @@ flowchart LR
 
 Pages always read from our own database, so a Codeforces outage doesn't break them. Codeforces is called only to load a new handle, refresh a stale one, or run the scheduled sync.
 
-## Data model
-
-```mermaid
-erDiagram
-    user ||--o{ session : has
-    user ||--o{ account : "signs in via"
-    user |o--o| cf_profile : owns
-    user ||--o{ handle_verification : starts
-    user ||--o{ upsolve_note : writes
-    cf_profile ||--o{ submission : makes
-    cf_profile ||--o{ contest_participation : enters
-    contest ||--o{ contest_participation : has
-    contest ||--o{ problem : contains
-    problem ||--o{ submission : "submitted to"
-    problem ||--o{ upsolve_note : "noted in"
-```
-
 ## Engineering highlights
 
 - **Codeforces sync.** The API allows about one request every 2 seconds, so requests go through a queue with that interval. Submissions load incrementally: pages stop at the newest stored ID. Writes run in a single transaction. A `sync_status` lock with a stale-lock timeout prevents parallel syncs of one handle.
